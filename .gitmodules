@@ -1,0 +1,6 @@
+[submodule "platform/flatsat-platform2-hardware"]
+	path = platform/flatsat-platform2-hardware
+	url = https://github.com/spacelab-ufsc/flatsat-platform2-hardware.git
+[submodule "platform/flatsat-platform2-firmware"]
+	path = platform/flatsat-platform2-firmware
+	url = https://github.com/spacelab-ufsc/flatsat-platform2-firmware.git
