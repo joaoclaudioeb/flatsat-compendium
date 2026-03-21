@@ -26,6 +26,7 @@ flatsat-compendium/
 ├── README
 ├── research/
 └── (...)/
+```
 
 ## Licenses
 
