@@ -2,27 +2,47 @@
     COMPENDIUM: FLATSAT PLATFORMS, TESTS AND MORE
 </h1>
 
-This repository compiles experimental data, simulation results, research assets, and systematic mappings related to FlatSat platform development. Each release receives a DOI via Zenodo for permanent citation in publications. TODO: we need to describe the licenses to be used here (each project already has one, and for data and etc. we could use another).
+This repository collects resources from the development and validation of the FlatSat 2.0 platform, an open-source hardware and software project for CubeSat verification. It includes design files, firmware, software, and experimental data from validation campaigns.
+
+The platform features embedded current and temperature sensors, a reconfigurable system-on-module running Linux, and support for hardware- and software-based fault injection. These capabilities enable unified telemetry logging, subsystem emulation, and on-orbit scenario simulation without external instrumentation.
+
+Future additions may include daughterboards for extended emulation, results from new test campaigns, and contributions from other missions that build upon or adapt the platform.
+
+<p align="center">
+    <img src="https://github.com/joaoclaudioeb/flatsat-compendium/blob/main/experiments/experiment-2025-09/figures/flatsat-edc-test.jpg?raw=true" width="400">
+    <img src="https://github.com/joaoclaudioeb/flatsat-compendium/blob/main/experiments/experiment-2026-01/figures/flatsat-ltc-test.jpg?raw=true" width="400">
+</p>
 
 ---
 
-### Repo. structure  
+## Repo. structure  
 
 ```bash
 flatsat-compendium/
 ├── platform/
-│   ├── flatsat2-platform
-│   │   ├── firmware/
-│   │   └── hardware/
-│   (...)
+│   ├── flatsat-platform2-firmware/
+│   └── flatsat-platform2-hardware/
+│
 ├── experiments/
 │   ├── experiment-yyyy-mm/
-│   │   ├── data/
-│   │   ├── analysis/
 │   │   ├── figures/
-│   │   └── raw-data/
-│   │       ├── sqlite-databases/
-│   │       └── test-logs/
+│   │   ├── README
+│   │   ├── (...)/
+│   │   └── embedded-sensors-data/raw-data
+│   │       └── read-sensors.sqlite3
+│   │
 │   (...)
+├── README
 ├── research/
-└── simulations/
+└── (...)/
+```
+
+## Licenses
+
+Unless otherwise noted, original files in this repository are licensed under:
+
+- Firmware: GPL-2.0
+- Hardware: CERN Open Hardware License v2.0
+
+>[!CAUTION]
+>Files originating from AMD/Xilinx tools, PetaLinux, Yocto, Linux, U-Boot, Avnet or other third parties remain under their respective licenses and are not relicensed by this project.
