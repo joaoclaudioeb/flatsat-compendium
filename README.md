@@ -2,27 +2,37 @@
     COMPENDIUM: FLATSAT PLATFORMS, TESTS AND MORE
 </h1>
 
-This repository compiles experimental data, simulation results, research assets, and systematic mappings related to FlatSat platform development. Each release receives a DOI via Zenodo for permanent citation in publications. TODO: we need to describe the licenses to be used here (each project already has one, and for data and etc. we could use another).
+This repository compiles experimental data, simulation results, research assets, and systematic mappings related to FlatSat platform development. Each release receives a DOI via Zenodo for permanent citation in publications.
 
 ---
 
-### Repo. structure  
+## Repo. structure  
 
 ```bash
 flatsat-compendium/
 ├── platform/
-│   ├── flatsat2-platform
-│   │   ├── firmware/
-│   │   └── hardware/
-│   (...)
+│   ├── flatsat-platform2-firmware/
+│   └── flatsat-platform2-hardware/
+│
 ├── experiments/
 │   ├── experiment-yyyy-mm/
-│   │   ├── data/
-│   │   ├── analysis/
 │   │   ├── figures/
-│   │   └── raw-data/
-│   │       ├── sqlite-databases/
-│   │       └── test-logs/
+│   │   ├── README
+│   │   ├── (...)/
+│   │   └── embedded-sensors-data/raw-data
+│   │       └── read-sensors.sqlite3
+│   │
 │   (...)
+├── README
 ├── research/
-└── simulations/
+└── (...)/
+
+## Licenses
+
+Unless otherwise noted, original files in this repository are licensed under:
+
+- Firmware: GPL-2.0
+- Hardware: CERN Open Hardware License v2.0
+
+>[!CAUTION]
+>Files originating from AMD/Xilinx tools, PetaLinux, Yocto, Linux, U-Boot, Avnet or other third parties remain under their respective licenses and are not relicensed by this project.
