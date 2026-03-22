@@ -2,6 +2,10 @@
     COMPENDIUM: FLATSAT PLATFORMS, TESTS AND MORE
 </h1>
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19164080.svg)](https://doi.org/10.5281/zenodo.19164080)
+
+---
+
 This repository collects resources from the development and validation of the FlatSat 2.0 platform, an open-source hardware and software project for CubeSat verification. It includes design files, firmware, software, and experimental data from validation campaigns.
 
 The platform features embedded current and temperature sensors, a reconfigurable system-on-module running Linux, and support for hardware- and software-based fault injection. These capabilities enable unified telemetry logging, subsystem emulation, and on-orbit scenario simulation without external instrumentation.
@@ -46,3 +50,21 @@ Unless otherwise noted, original files in this repository are licensed under:
 
 >[!CAUTION]
 >Files originating from AMD/Xilinx tools, PetaLinux, Yocto, Linux, U-Boot, Avnet or other third parties remain under their respective licenses and are not relicensed by this project.
+
+## How to cite
+
+If you use this platform or its associated assets in your work, please cite it using the format below and the latest available DOI.
+
+```bash
+@misc{barcellos_2026,
+  author       = {João Cláudio Elsen Barcellos and
+                  Carlos Augusto Porto Freitas},
+  title        = {flatsat-compendium: v1.0},
+  month        = mar,
+  year         = 2026,
+  publisher    = {GitHub},
+  version      = {v1.0},
+  doi          = {10.5281/zenodo.19164080},
+  url          = {https://doi.org/10.5281/zenodo.19164080},
+}
+```
