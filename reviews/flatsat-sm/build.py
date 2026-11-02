@@ -66,8 +66,26 @@ def main():
     out += [f"| {t.upper() if t == 'emc' else t.capitalize()} | {v} |" for t, v in tests.items()]
     out.append("\nWorks with more than one type are counted in each.\n")
 
+    bp = [r for r in rows if "backplane" in r["assembly"].split(";")]
+    labels = {"support_structure": "Supporting structure (all works)",
+              "passive": "Passive backplane", "active": "Active backplane",
+              "sensors": "Sensors (e.g., power consumption, temperature)",
+              "switches_jumpers": "Switches and/or jumpers",
+              "ext_power_connectors": "Connectors for external power supplies",
+              "monitoring_points": "Connectors, LEDs, and/or test points for monitoring",
+              "std_connectors": "Other standardized connectors (e.g., USB, antenna)",
+              "cpld": "CPLD"}
+    out.append(f"| Platform characteristic | Works |\n|---|---|")
+    out.append(f"| {labels['support_structure']} | {sum(r['support_structure'] == 'yes' for r in rows)} |")
+    out.append(f"| Backplane-based platforms | {len(bp)} |")
+    for k in ("passive", "active"):
+        out.append(f"| &nbsp;&nbsp;{labels[k]} | {sum(r['backplane'] == k for r in bp)} |")
+    for k in ("sensors", "switches_jumpers", "ext_power_connectors", "monitoring_points", "std_connectors", "cpld"):
+        out.append(f"| &nbsp;&nbsp;{labels[k]} | {sum(r[k] == 'yes' for r in bp)} |")
+    out.append("")
+
     out.append("## Works\n")
-    out.append("| # | Work | Mission / project | Type | Tests |\n|---|---|---|---|---|")
+    out.append("| # | Work | Mission / project | Type | Backplane features | Tests |\n|---|---|---|---|---|---|")
     for r in sorted(rows, key=lambda r: (r["year"], r["bibkey"])):
         name = f"{first_author(bib, r['bibkey'])} ({r['year']})"
         work = f"[{name}]({r['link']})" if r["link"] else name
@@ -75,7 +93,11 @@ def main():
         ty = ", ".join(t.capitalize() for t in r["type"].split(";"))
         te = ", ".join(c[5:].upper() if c == "test_emc" else c[5:].capitalize()
                        for c in r if c.startswith("test_") and r[c] == "yes") or "—"
-        out.append(f"| {r['id']} | {work} | {mp} | {ty} | {te} |")
+        feats = [r["backplane"].capitalize()] if r["backplane"] else []
+        feats += [n for c, n in (("sensors", "sensors"), ("switches_jumpers", "switches"),
+                                 ("ext_power_connectors", "power conn."), ("monitoring_points", "monitoring"),
+                                 ("std_connectors", "std. conn."), ("cpld", "CPLD")) if r[c] == "yes"]
+        out.append(f"| {r['id']} | {work} | {mp} | {ty} | {', '.join(feats) or '—'} | {te} |")
 
     (HERE / "README.md").write_text("\n".join(out) + "\n", encoding="utf-8")
     print(f"README.md written ({n} works)")
