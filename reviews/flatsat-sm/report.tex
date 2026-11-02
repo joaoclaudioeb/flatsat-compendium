@@ -1,0 +1,262 @@
+% ======================================================
+%
+% report.tex
+%
+% Description: Generates a PDF with the data of the FlatSat
+%              systematic mapping, read directly from
+%              data/flatsat_platforms.tsv and data/references.bib.
+%              Edit the data files and run make; do not edit the
+%              tables or charts by hand.
+%
+% Author:      João Cláudio E. B.
+%
+% ======================================================
+\documentclass[9pt]{extarticle}
+
+\usepackage[a4paper, landscape, margin=1.5cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{times}
+\usepackage{csvsimple-l3}
+\usepackage{xstring}
+\usepackage{etoolbox}
+\usepackage{pifont}
+\usepackage{xcolor}
+\usepackage{pgfplots}
+    \pgfplotsset{compat=1.18}
+\usepackage{tabularray}
+    \UseTblrLibrary{booktabs}
+\usepackage{url}
+\usepackage[hidelinks]{hyperref}
+
+\newcommand{\datafile}{data/flatsat_platforms.tsv}
+
+% ---- Symbols (same style as the papers) --------------
+\newcommand{\yessym}{{\color{green!50!black}\ding{51}}}
+\newcommand{\nosym}{{\color{red!70!black}\ding{55}}}
+
+% ---- Counters for the summary and charts -------------
+\newcommand{\cnt}[1]{\newcounter{#1}}
+\cnt{total}\cnt{raw}\cnt{bridge}\cnt{dock}\cnt{modular}
+\cnt{struct}\cnt{bp}\cnt{passive}\cnt{active}
+\cnt{sens}\cnt{sw}\cnt{pwr}\cnt{mon}\cnt{std}\cnt{cpld}
+\cnt{func}\cnt{miss}\cnt{therm}\cnt{emc}
+\newcounter{minyear}\setcounter{minyear}{9999}
+\newcounter{maxyear}
+\newcounter{yr}
+\pgfplotsforeachungrouped \y in {1990,...,2050}{\newcounter{y\y}}
+\newcommand{\ifyes}[2]{\ifcsvstrcmp{#1}{yes}{\stepcounter{#2}}{}}
+
+% ---- Table body builder ------------------------------
+% The rows are collected in \tbody and expanded inside the longtblr.
+\newcommand{\tbody}{}
+\newcommand{\addraw}[1]{\gappto\tbody{#1}}
+\newcommand{\addval}[1]{\xappto\tbody{\expandonce{#1}}}
+\newcommand{\addorDash}[1]{\ifcsvstrcmp{#1}{}{\addraw{-}}{\addval{#1}}}
+\newcommand{\addyn}[1]{%
+  \ifcsvstrcmp{#1}{yes}{\addraw{& \SetCell{bg=green!20}\yessym}}{%
+  \ifcsvstrcmp{#1}{no}{\addraw{& \SetCell{bg=red!20}\nosym}}{\addraw{& -}}}}
+\newcommand{\addtype}[1]{%
+  \def\sep{}%
+  \IfSubStr{#1}{raw}{\xappto\tbody{\sep Raw}\def\sep{/}}{}%
+  \IfSubStr{#1}{bridge}{\xappto\tbody{\sep Bridge}\def\sep{/}}{}%
+  \IfSubStr{#1}{dock}{\xappto\tbody{\sep Dock}\def\sep{/}}{}%
+  \IfSubStr{#1}{modular}{\xappto\tbody{\sep Modular}}{}}
+
+\begin{document}
+
+\begin{center}
+  {\Large\bfseries FlatSat platforms for small satellites: systematic mapping}\\[4pt]
+  J.\,C.\,E. Barcellos
+\end{center}
+
+This document lists the works analyzed in the systematic mapping published in
+J.\,C.\,E. Barcellos \textit{et al.}, ``FlatSat Platforms for Small Satellites: A Systematic Mapping and Classification,''
+\textit{IEEE Journal on Miniaturization for Air and Space Systems}, vol.~4, no.~2, pp.~186--198, 2023,
+doi: \href{https://doi.org/10.1109/JMASS.2023.3249044}{10.1109/JMASS.2023.3249044}.
+It is generated from \texttt{data/flatsat\_platforms.tsv} and \texttt{data/references.bib}, which may be expanded and corrected over time.
+
+% ---- Single pass: counters and table rows ------------
+\csvreader[separator=tab, respect and]{\datafile}{}{%
+  \stepcounter{total}%
+  \IfSubStr{\csvcolix}{raw}{\stepcounter{raw}}{}%
+  \IfSubStr{\csvcolix}{bridge}{\stepcounter{bridge}}{}%
+  \IfSubStr{\csvcolix}{dock}{\stepcounter{dock}}{}%
+  \IfSubStr{\csvcolix}{modular}{\stepcounter{modular}}{}%
+  \ifyes{\csvcolxi}{struct}%
+  \IfSubStr{\csvcolx}{backplane}{\stepcounter{bp}}{}%
+  \ifcsvstrcmp{\csvcolxii}{passive}{\stepcounter{passive}}{}%
+  \ifcsvstrcmp{\csvcolxii}{active}{\stepcounter{active}}{}%
+  \ifyes{\csvcolxiii}{sens}\ifyes{\csvcolxiv}{sw}\ifyes{\csvcolxv}{pwr}%
+  \ifyes{\csvcolxvi}{mon}\ifyes{\csvcolxvii}{std}\ifyes{\csvcolxviii}{cpld}%
+  \ifyes{\csvcolxix}{func}\ifyes{\csvcolxx}{miss}\ifyes{\csvcolxxi}{therm}\ifyes{\csvcolxxii}{emc}%
+  \setcounter{yr}{\csvcolv}%
+  \stepcounter{y\csvcolv}%
+  \ifnum\value{yr}<\value{minyear}\setcounter{minyear}{\value{yr}}\fi
+  \ifnum\value{yr}>\value{maxyear}\setcounter{maxyear}{\value{yr}}\fi
+  % row of the main table
+  \addval{\csvcoli}\addraw{& }%
+  \xappto\tbody{\noexpand\cite{\csvcolii}}\addraw{& }%
+  \ifcsvstrcmp{\csvcoliii}{}{\addorDash{\csvcoliv}}{\addval{\csvcoliii}}%
+  \addraw{& }\addval{\csvcolv}\addraw{& }\addtype{\csvcolix}\addraw{& }%
+  \IfSubStr{\csvcolx}{;}{\addraw{Both}}{\IfSubStr{\csvcolx}{wire}{\addraw{Wire}}{\addraw{Backplane}}}%
+  \addyn{\csvcolxi}%
+  \ifcsvstrcmp{\csvcolxii}{passive}{\addraw{& Passive}}{\ifcsvstrcmp{\csvcolxii}{active}{\addraw{& Active}}{\addraw{& -}}}%
+  \addyn{\csvcolxiii}\addyn{\csvcolxiv}\addyn{\csvcolxv}\addyn{\csvcolxvi}\addyn{\csvcolxvii}\addyn{\csvcolxviii}%
+  \addyn{\csvcolxix}\addyn{\csvcolxx}\addyn{\csvcolxxi}\addyn{\csvcolxxii}%
+  \addraw{\\}%
+}
+
+\section*{Summary}
+
+\noindent
+\begin{minipage}[t]{0.2\linewidth}
+  \begin{talltblr}[entry=none, label=none, baseline=T]{
+    colspec = {X[l,m]Q[r,m]},
+    cells   = {font = \fontsize{9pt}{10pt}\selectfont},
+    row{1}  = {font = \fontsize{9pt}{10pt}\selectfont\bfseries},
+    }
+    \toprule
+    Type & Works \\
+    \midrule
+    \midrule
+    Raw & \arabic{raw} \\
+    Bridge & \arabic{bridge} \\
+    Dock & \arabic{dock} \\
+    Modular & \arabic{modular} \\
+    \bottomrule
+  \end{talltblr}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.2\linewidth}
+  \begin{talltblr}[entry=none, label=none, baseline=T]{
+    colspec = {X[l,m]Q[r,m]},
+    cells   = {font = \fontsize{9pt}{10pt}\selectfont},
+    row{1}  = {font = \fontsize{9pt}{10pt}\selectfont\bfseries},
+    }
+    \toprule
+    Test & Works \\
+    \midrule
+    \midrule
+    Functional & \arabic{func} \\
+    Mission & \arabic{miss} \\
+    Thermal & \arabic{therm} \\
+    EMC & \arabic{emc} \\
+    \bottomrule
+  \end{talltblr}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.5\linewidth}
+  \begin{talltblr}[entry=none, label=none, baseline=T]{
+    colspec = {X[l,m]Q[r,m]},
+    cells   = {font = \fontsize{9pt}{10pt}\selectfont},
+    row{1}  = {font = \fontsize{9pt}{10pt}\selectfont\bfseries},
+    }
+    \toprule
+    Platform characteristic & Works \\
+    \midrule
+    \midrule
+    Supporting structure (metallic or not) & \arabic{struct} \\
+    Subsystems assembled on a backplane & \arabic{bp} \\
+    \hspace{1em}Passive / active backplane & \arabic{passive} / \arabic{active} \\
+    \hspace{1em}Sensors (e.g., power consumption, temperature) & \arabic{sens} \\
+    \hspace{1em}Switches and/or jumpers & \arabic{sw} \\
+    \hspace{1em}Connectors for external power supplies & \arabic{pwr} \\
+    \hspace{1em}Connectors, LEDs, and/or test points for monitoring & \arabic{mon} \\
+    \hspace{1em}Other standardized connectors (e.g., USB, antenna) & \arabic{std} \\
+    \hspace{1em}CPLD & \arabic{cpld} \\
+    \bottomrule
+  \end{talltblr}
+\end{minipage}
+
+\medskip
+\noindent Total: \arabic{total} works. Works classified into more than one type (e.g., Raw/Dock) are counted in each.
+
+\section*{Analyzed works}
+
+\begin{longtblr}[
+  entry=none,
+  label=none,
+  expand=\tbody,
+  note{a} = {Work number in the original screening.},
+  note{b} = {Backplane-based platforms only. Sens.: sensors; Sw.: switches and/or jumpers; Pwr.: connectors for external power supplies; Mon.: connectors, LEDs, and/or test points for monitoring; Conn.: other standardized connectors; CPLD: complex programmable logic device.},
+  remark{Note} = {-: not available or not applicable.},
+  ]{
+  colspec = {Q[r,m]Q[l,m]X[l,m]Q[c,m]Q[l,m]Q[l,m]Q[c,m]Q[l,m]*{10}{Q[c,m,wd=0.95cm]}},
+  colsep  = 3pt,
+  cells   = {font = \fontsize{9pt}{10pt}\selectfont},
+  row{1-2} = {font = \fontsize{9pt}{10pt}\selectfont\bfseries},
+  rowhead = 2,
+  }
+  \toprule
+  \SetCell[r=2]{c} \#\TblrNote{a} & \SetCell[r=2]{l} Ref. & \SetCell[r=2]{l} Mission / project & \SetCell[r=2]{c} Year & \SetCell[r=2]{l} Type & \SetCell[r=2]{l} Assembly & \SetCell[r=2]{c} Struct. & \SetCell[r=2]{l} Backplane
+  & \SetCell[c=6]{c} Backplane features\TblrNote{b} & & & & & & \SetCell[c=4]{c} Tests & & & \\
+  \cmidrule[lr]{9-14}\cmidrule[lr]{15-18}
+  & & & & & & & & Sens. & Sw. & Pwr. & Mon. & Conn. & CPLD & Func. & Miss. & Therm. & EMC \\
+  \midrule
+  \midrule
+  \tbody
+  \bottomrule
+\end{longtblr}
+
+\section*{Charts}
+
+% year list for the chart (from the first to the last year in the data)
+\def\yearcoords{}
+\edef\ymin{\arabic{minyear}}\edef\ymax{\arabic{maxyear}}
+\pgfplotsforeachungrouped \y in {\ymin,...,\ymax}{%
+  \xappto\yearcoords{(\y,\arabic{y\y})}}
+
+\noindent
+\begin{tikzpicture}
+  \begin{axis}[
+    title={Works per year}, width=0.48\linewidth, height=5cm,
+    ybar, bar width=7pt, ymin=0, xtick=data, xticklabel style={rotate=90, /pgf/number format/1000 sep=},
+    nodes near coords, nodes near coords style={font=\scriptsize}, enlarge x limits=0.04,
+    axis lines*=left, ymajorgrids, grid style={gray!25}, tick label style={font=\scriptsize},
+    ]
+    \addplot[fill=blue!40, draw=blue!60!black] coordinates {\yearcoords};
+  \end{axis}
+\end{tikzpicture}\hfill
+\begin{tikzpicture}
+  \begin{axis}[
+    title={Type of platform}, width=0.25\linewidth, height=5cm,
+    ybar, bar width=12pt, ymin=0, symbolic x coords={Raw,Bridge,Dock,Modular}, xtick=data,
+    nodes near coords, nodes near coords style={font=\scriptsize}, enlarge x limits=0.2,
+    axis lines*=left, ymajorgrids, grid style={gray!25}, tick label style={font=\scriptsize},
+    ]
+    \addplot[fill=orange!50, draw=orange!70!black] coordinates
+      {(Raw,\arabic{raw}) (Bridge,\arabic{bridge}) (Dock,\arabic{dock}) (Modular,\arabic{modular})};
+  \end{axis}
+\end{tikzpicture}\hfill
+\begin{tikzpicture}
+  \begin{axis}[
+    title={Tests}, width=0.25\linewidth, height=5cm,
+    ybar, bar width=12pt, ymin=0, symbolic x coords={Functional,Mission,Thermal,EMC}, xtick=data,
+    nodes near coords, nodes near coords style={font=\scriptsize}, enlarge x limits=0.2,
+    axis lines*=left, ymajorgrids, grid style={gray!25}, tick label style={font=\scriptsize},
+    ]
+    \addplot[fill=green!40, draw=green!50!black] coordinates
+      {(Functional,\arabic{func}) (Mission,\arabic{miss}) (Thermal,\arabic{therm}) (EMC,\arabic{emc})};
+  \end{axis}
+\end{tikzpicture}
+
+\bigskip
+\noindent
+\begin{tikzpicture}
+  \begin{axis}[
+    title={Features of the \arabic{bp} backplane-based platforms}, width=0.9\linewidth, height=5.5cm,
+    xbar, bar width=7pt, xmin=0, ytick=data,
+    symbolic y coords={CPLD,Sensors,Standardized connectors,Switches/jumpers,External power connectors,Monitoring points,Active backplane,Passive backplane},
+    nodes near coords, nodes near coords style={font=\scriptsize}, enlarge y limits=0.08,
+    axis lines*=left, xmajorgrids, grid style={gray!25}, tick label style={font=\scriptsize},
+    ]
+    \addplot[fill=violet!35, draw=violet!60!black] coordinates
+      {(\arabic{passive},Passive backplane) (\arabic{active},Active backplane) (\arabic{mon},Monitoring points)
+       (\arabic{pwr},External power connectors) (\arabic{sw},Switches/jumpers) (\arabic{std},Standardized connectors)
+       (\arabic{sens},Sensors) (\arabic{cpld},CPLD)};
+  \end{axis}
+\end{tikzpicture}
+
+\bibliographystyle{IEEEtran}
+\bibliography{data/references}
+
+\end{document}
